@@ -13,6 +13,9 @@ import {
     styled,
 } from "@mui/material";
 import OtpModal from "../components/OtpModal";
+import axios from "axios";
+import { toast } from "react-toastify";
+import { baseURL } from "../utils/url";
 
 const VisuallyHiddenInput = styled("input")({
     clip: "rect(0 0 0 0)",
@@ -41,12 +44,8 @@ const AppointmentDetails = () => {
     });
     const [profilePic, setProfilePic] = useState(null);
     const [localStorageData, setLocalStorageData] = useState(null);
-
-    const [open, setOpen] = useState(false);
-
-    const handleOpen = () => setOpen(true);
-    const handleClose = () => setOpen(false);
-
+    const [imageFile, setImageFile] = useState("");
+    
     useEffect(() => {
         const storedData = JSON.parse(localStorage.getItem("new-appointment"));
         if (storedData) {
@@ -55,14 +54,31 @@ const AppointmentDetails = () => {
         }
     }, []);
 
-    const handleProfilePicChange = (event) => {
+    const handleProfilePicChange = async (event) => {
+        const formData = new FormData();
         const file = event.target.files[0];
+        formData.append("file", event.target.files[0]);
+
         if (file) {
             setProfilePic(URL.createObjectURL(file)); // Set the profile picture preview
         }
+        try {
+            const response = await axios.post(
+                baseURL + "/upload-profile",
+                formData
+            );
+
+            if (response.data.status) {
+                setImageFile(response.data.filename);
+                toast.success("Uploaded");
+            }
+        } catch (error) {
+            console.log(error);
+            toast.error(error.message);
+        }
     };
 
-    const handleSubmit = (event) => {
+    const handleSubmit = async (event) => {
         event.preventDefault();
 
         const formData = new FormData(event.target);
@@ -75,11 +91,11 @@ const AppointmentDetails = () => {
             countryCode: formData.get("countryCode"),
             mobileNumber: formData.get("mobileNumber"),
             email: formData.get("email"),
+            profile: imageFile,
         };
 
         console.log(appointmentDataToSave);
-        handleOpen();
-        // navigate("/applicant-details");
+        navigate("/applicant-details");
         localStorage.setItem(
             "appointment-details",
             JSON.stringify(appointmentDataToSave)
@@ -110,15 +126,11 @@ const AppointmentDetails = () => {
                 </div>
 
                 {/* Profile Picture */}
-                <div className="form-input mb-6 text-center">
+                <div className="form-input mb-6 text-center flex flex-col items-center">
                     <Typography sx={{ fontSize: "14px", fontWeight: "bold" }}>
                         Upload Profile Picture
                     </Typography>
-                    <Button
-                        component="label"
-                        variant="contained"
-                        tabIndex={-1}
-                    >
+                    <Button component="label" variant="contained" tabIndex={-1}>
                         Upload Picture
                         <VisuallyHiddenInput
                             type="file"
@@ -133,7 +145,7 @@ const AppointmentDetails = () => {
                             alt="Profile Preview"
                             style={{
                                 marginTop: "10px",
-                                maxWidth: "100px",
+                                maxWidth: "300px",
                                 borderRadius: "50%",
                             }}
                         />
@@ -197,39 +209,6 @@ const AppointmentDetails = () => {
                             />
                         </FormControl>
                     </div>
-                    {/* ------------Country Code-------------------- */}
-                    <div className="form-input">
-                        <TextField
-                            //   label="Country Code"
-                            fullWidth
-                            value={appointmentData.countryCode}
-                            //   onChange={handleInputChange}
-                            name="countryCode"
-                            placeholder="Enter Country Code"
-                        />
-                    </div>
-                    {/* ------------Mobile Number-------------------- */}
-                    <div className="form-input">
-                        <TextField
-                            //   label="Mobile Number"
-                            fullWidth
-                            value={appointmentData.mobileNumber}
-                            //   onChange={handleInputChange}
-                            name="mobileNumber"
-                            placeholder="Enter Phone Number"
-                        />
-                    </div>
-                    {/* ------------Applicant Email-------------------- */}
-                    <div className="form-input">
-                        <TextField
-                            //   label="Applicant Email"
-                            fullWidth
-                            value={appointmentData.email}
-                            //   onChange={handleInputChange}
-                            name="email"
-                            placeholder="Enter Email"
-                        />
-                    </div>
                 </div>
 
                 <div className="form-button mt-6 flex justify-center">
@@ -247,16 +226,11 @@ const AppointmentDetails = () => {
                             },
                         }}
                     >
-                        Save Appointment Details
+                        Next
                     </Button>
                 </div>
             </form>
-            <OtpModal
-                onClose={handleClose}
-                open={open}
-                setOpen={setOpen}
-                handleOpen={handleOpen}
-            />
+           
         </Box>
     );
 };

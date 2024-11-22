@@ -1,5 +1,4 @@
 import React from "react";
-import Login from "./pages/login";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import AppLayout from "./layout/layout";
 import Dashboard from "./pages/dashboard";
@@ -14,10 +13,9 @@ const App = () => {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/login" element={<Login />} />
         <Route path="/" element={<AppLayout />}>
           <Route path="/dashboard" index element={<Dashboard />} />
-          <Route path="/bls-login" element={<BlsLogin />} />
+          <Route path="/login" element={<BlsLogin />} />
           <Route path="/book" element={<BookNewAppointment />} />
           <Route path="/appointment-details" element={<AppointmentDetails />} />
           <Route path="/applicant-details" element={<ApplicantDetails />} />

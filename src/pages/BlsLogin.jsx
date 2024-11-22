@@ -95,7 +95,14 @@ const BlsLogin = () => {
 
         try {
             const response = await axios.post(baseURL + "/login", formData);
-            console.log(response.data);
+            if (response.data.status) {
+                toast.success("Login");
+                localStorage.setItem(
+                    "bls-auth",
+                    JSON.stringify(formData.email)
+                );
+                navigate("/book");
+            }
         } catch (error) {
             console.log(error);
             toast.error(error.message);

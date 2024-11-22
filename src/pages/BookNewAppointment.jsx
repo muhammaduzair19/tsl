@@ -18,12 +18,16 @@ import {
 
 import { toast } from "react-toastify";
 import { InsertEmoticon } from "@mui/icons-material";
+import axios from "axios";
+import { baseURL } from "../utils/url";
+import { ClockLoader } from "react-spinners";
 
 const BookNewAppointment = () => {
     const [showPassword, setShowPassword] = useState(false);
     const navigate = useNavigate();
     const [appointmentFor, setAppointmentFor] = useState("individual"); // Track selected option
     const [members, setMembers] = useState(null);
+    const [checkingAvailibility, setCheckingAvailibility] = useState(false);
     const [visaType, setVisaType] = useState(""); // Track selected Visa Type
     const [visaSubType, setVisaSubType] = useState(""); // Track selected Visa Sub Type
 
@@ -55,11 +59,11 @@ const BookNewAppointment = () => {
     const handleVisaTypeChange = (event) => {
         setVisaType(event.target.value);
 
-        if (event.target.value === "schengen") {
+        if (event.target.value === "Schengen Visa") {
             setVisaSubType(schengen);
             return;
         }
-        if (event.target.value === "national") {
+        if (event.target.value === "National Visa") {
             setVisaSubType(national);
             return;
         }
@@ -72,7 +76,30 @@ const BookNewAppointment = () => {
         setVisaSubType([]); // Reset the subtypes if no valid visa type
     };
 
-    const handleSubmit = (event) => {
+    const availabilityChecking = async () => {
+        const intervalId = setInterval(async () => {
+            try {
+                const response = await axios.get(
+                    baseURL + "/check-availability-status"
+                );
+                console.log(response.data);
+
+                if (response.data.appointment_availability) {
+                    // Availability found, stop checking
+                    clearInterval(intervalId); // Stop the interval
+                    setTimeout(() => {
+                        setCheckingAvailibility(false);
+                        navigate("/appointment-details");
+                    }, 1000);
+                }
+            } catch (error) {
+                console.log(error);
+                toast.error(error.message);
+            }
+        }, 3000); // Run every 10 seconds
+    };
+
+    const handleSubmit = async (event) => {
         event.preventDefault();
         const form = new FormData(event.target);
         form.append("appointmentFor", appointmentFor);
@@ -84,8 +111,8 @@ const BookNewAppointment = () => {
             visaType: form.get("visa-type"),
             visaSubType: form.get("visa-subtype"),
             appointmentFor: appointmentFor,
-            members: members ?? "NONE",
         };
+
         const emptyFields = Object.keys(formData).filter(
             (key) => formData[key] === "" || formData[key] === null
         );
@@ -96,8 +123,23 @@ const BookNewAppointment = () => {
             return;
         }
         localStorage.setItem("new-appointment", JSON.stringify(formData));
-        console.log(formData);
-        navigate("/appointment-details");
+
+        try {
+            const response = await axios.post(
+                baseURL + "/check-availability",
+                formData
+            );
+
+            if (response.data.status) {
+                console.log(response);
+                toast.success("Checking appointment Availability");
+                setCheckingAvailibility(true);
+                availabilityChecking(); // Start periodic checking
+            }
+        } catch (error) {
+            console.log(error);
+            toast.error(error.message);
+        }
     };
 
     return (
@@ -111,6 +153,16 @@ const BookNewAppointment = () => {
                 alignItems: "center",
             }}
         >
+            <div
+                className={`w-full h-full bg-black/80 absolute inset-0 z-50 justify-center items-center flex-col ${
+                    checkingAvailibility ? "flex" : "hidden"
+                }`}
+            >
+                <ClockLoader color="#ffff" size={300} />
+                <p className="text-2xl text-white font-bold mt-3">
+                    AVAILBILITY CHECKING
+                </p>
+            </div>
             <form
                 onSubmit={handleSubmit}
                 className="w-full max-w-3xl mx-auto p-6 bg-white shadow-lg rounded-lg"
@@ -134,9 +186,9 @@ const BookNewAppointment = () => {
                                 name="category" // Use the same name attribute
                                 label="Appointment Category"
                             >
-                                <MenuItem value="normal">Normal</MenuItem>
-                                <MenuItem value="premium">Premium</MenuItem>
-                                <MenuItem value="prime-time">
+                                <MenuItem value="Normal">Normal</MenuItem>
+                                <MenuItem value="Premium">Premium</MenuItem>
+                                <MenuItem value="Prime-time">
                                     Prime-time
                                 </MenuItem>
                             </Select>
@@ -155,9 +207,9 @@ const BookNewAppointment = () => {
                                 name="location" // Use the same name attribute
                                 label="Location"
                             >
-                                <MenuItem value="islamabad">Islamabad</MenuItem>
-                                <MenuItem value="karachi">Karachi</MenuItem>
-                                <MenuItem value="lahore">Lahore</MenuItem>
+                                <MenuItem value="Islamabad">Islamabad</MenuItem>
+                                <MenuItem value="Karachi">Karachi</MenuItem>
+                                <MenuItem value="Lahore">Lahore</MenuItem>
                             </Select>
                         </FormControl>
                     </div>
@@ -180,10 +232,10 @@ const BookNewAppointment = () => {
                                 <MenuItem value="eea/eu">
                                     Family of EEA / EU Citizens
                                 </MenuItem>
-                                <MenuItem value="national">
+                                <MenuItem value="National Visa">
                                     National Visa
                                 </MenuItem>
-                                <MenuItem value="schengen">
+                                <MenuItem value="Schengen Visa">
                                     Schengen Visa
                                 </MenuItem>
                             </Select>
@@ -230,12 +282,12 @@ const BookNewAppointment = () => {
                         onChange={handleRadioChange}
                     >
                         <FormControlLabel
-                            value="individual"
+                            value="Individual"
                             control={<Radio />}
                             label="Individual"
                         />
                         <FormControlLabel
-                            value="family"
+                            value="Family"
                             control={<Radio />}
                             label="Family"
                         />
