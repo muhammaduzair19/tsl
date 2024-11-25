@@ -64,6 +64,7 @@ const ApplicantDetails = () => {
     };
     const handleChange = (event) => {
         const { name, value } = event.target;
+        console.log(name);
         setFormValues((prevValues) => ({
             ...prevValues,
             [name]: value,
@@ -150,7 +151,7 @@ const ApplicantDetails = () => {
 
         const data = {
             ...formValues,
-            guardiaun: guardianFlag ? true : false,
+            guardian: guardianFlag ? true : false,
             otherAddress: otherAddressFlag ? true : false,
             previousSchengen: previousSchengenStatus ? true : false,
             invitingSource,
@@ -172,12 +173,11 @@ const ApplicantDetails = () => {
             // Handle the response
             console.log(response.data);
             if (response.data.status) {
-                setFormValues({});
+                // setFormValues({});
                 toast.success("Form submit wait for OTP");
                 setCheckingOtp(true);
                 otpChecking();
             }
-            alert("Form submitted successfully!");
         } catch (error) {
             console.error("Error submitting form:", error);
             alert("Error submitting form: " + error.message);
@@ -193,7 +193,7 @@ const ApplicantDetails = () => {
             >
                 <ClockLoader color="#ffff" size={300} />
                 <p className="text-2xl text-white font-bold mt-3">
-                    OTP GETTING
+                    Wait for the OTP
                 </p>
             </div>
             <form onSubmit={handleSubmit}>
@@ -1359,26 +1359,79 @@ const ApplicantDetails = () => {
                                     "invitingOrgEmail",
                                     "invitingOrgNumber",
                                     "invitingOrgFax",
-                                ].map((field, index) => (
-                                    <TextField
-                                        key={index}
-                                        label={formatLabel(field)}
-                                        fullWidth
-                                        required={field !== "invitingOrgFax"}
-                                        name={field}
-                                        value={formValues[field] || ""}
-                                        onChange={handleChange}
-                                        type={getFieldType(field)}
-                                        disabled={
-                                            !(
-                                                invitingSource ===
-                                                    "invitingOrganization" ||
-                                                invitingSource ===
-                                                    "temporaryAccomodation"
-                                            )
-                                        }
-                                    />
-                                ))}
+                                ].map((field, index) => {
+                                    return (
+                                        <>
+                                            {field == "invitingOrgCountry" ? (
+                                                <FormControl fullWidth>
+                                                    <InputLabel id="purpose-type-select-label">
+                                                        {formatLabel(field)}
+                                                    </InputLabel>
+                                                    <Select
+                                                        labelId="country-select-label"
+                                                        id="country-select"
+                                                        required
+                                                        name={
+                                                            "invitingOrgCountry"
+                                                        }
+                                                        value={
+                                                            formValues?.invitingOrgCountry
+                                                        }
+                                                        onChange={handleChange}
+                                                        label={formatLabel(
+                                                            field
+                                                        )}
+                                                        disabled={
+                                                            !(
+                                                                invitingSource ===
+                                                                    "invitingOrganization" ||
+                                                                invitingSource ===
+                                                                    "temporaryAccomodation"
+                                                            )
+                                                        }
+                                                    >
+                                                        {countries.map(
+                                                            (item, index) => (
+                                                                <MenuItem
+                                                                    key={index}
+                                                                    value={
+                                                                        item.name
+                                                                    }
+                                                                >
+                                                                    {item.name}
+                                                                </MenuItem>
+                                                            )
+                                                        )}
+                                                    </Select>
+                                                </FormControl>
+                                            ) : (
+                                                <TextField
+                                                    key={index}
+                                                    label={formatLabel(field)}
+                                                    fullWidth
+                                                    required={
+                                                        field !==
+                                                        "invitingOrgFax"
+                                                    }
+                                                    name={field}
+                                                    value={
+                                                        formValues[field] || ""
+                                                    }
+                                                    onChange={handleChange}
+                                                    type={getFieldType(field)}
+                                                    disabled={
+                                                        !(
+                                                            invitingSource ===
+                                                                "invitingOrganization" ||
+                                                            invitingSource ===
+                                                                "temporaryAccomodation"
+                                                        )
+                                                    }
+                                                />
+                                            )}
+                                        </>
+                                    );
+                                })}
                             </Box>
                         </Box>
 
@@ -1426,28 +1479,81 @@ const ApplicantDetails = () => {
                                     "invitingContactPersonEmail",
                                     "invitingContactPersonNumber",
                                     "invitingContactPersonFax",
-                                ].map((field, index) => (
-                                    <TextField
-                                        key={index}
-                                        label={formatLabel(field)}
-                                        fullWidth
-                                        required={
-                                            field !== "invitingContactPersonFax"
-                                        }
-                                        name={field}
-                                        value={formValues[field] || ""}
-                                        onChange={handleChange}
-                                        type={getFieldType(field)}
-                                        disabled={
-                                            !(
-                                                invitingSource ===
-                                                    "invitingOrganization" ||
-                                                invitingSource ===
-                                                    "invitingPerson"
-                                            )
-                                        }
-                                    />
-                                ))}
+                                ].map((field, index) => {
+                                    return (
+                                        <>
+                                            {field ==
+                                            "invitingContactPersonCountry" ? (
+                                                <FormControl fullWidth>
+                                                    <InputLabel id="purpose-type-select-label">
+                                                        {formatLabel(field)}
+                                                    </InputLabel>
+                                                    <Select
+                                                        labelId="country-select-label"
+                                                        id="country-select"
+                                                        required
+                                                        name={
+                                                            "invitingContactPersonCountry"
+                                                        }
+                                                        value={
+                                                            formValues?.invitingContactPersonCountry
+                                                        }
+                                                        onChange={handleChange}
+                                                        label={formatLabel(
+                                                            field
+                                                        )}
+                                                        aria-hidden={false} // Explicitly set to false
+                                                        disabled={
+                                                            !(
+                                                                invitingSource ===
+                                                                    "invitingOrganization" ||
+                                                                invitingSource ===
+                                                                    "invitingPerson"
+                                                            )
+                                                        }
+                                                    >
+                                                        {countries.map(
+                                                            (item, index) => (
+                                                                <MenuItem
+                                                                    key={index}
+                                                                    value={
+                                                                        item.name
+                                                                    }
+                                                                >
+                                                                    {item.name}
+                                                                </MenuItem>
+                                                            )
+                                                        )}
+                                                    </Select>
+                                                </FormControl>
+                                            ) : (
+                                                <TextField
+                                                    key={index}
+                                                    label={formatLabel(field)}
+                                                    fullWidth
+                                                    required={
+                                                        field !==
+                                                        "invitingContactPersonFax"
+                                                    }
+                                                    name={field}
+                                                    value={
+                                                        formValues[field] || ""
+                                                    }
+                                                    onChange={handleChange}
+                                                    type={getFieldType(field)}
+                                                    disabled={
+                                                        !(
+                                                            invitingSource ===
+                                                                "invitingOrganization" ||
+                                                            invitingSource ===
+                                                                "invitingPerson"
+                                                        )
+                                                    }
+                                                />
+                                            )}
+                                        </>
+                                    );
+                                })}
                             </Box>
                         </Box>
                     </Box>

@@ -107,7 +107,6 @@ const AppointmentDetails = () => {
             sx={{
                 width: "100%",
                 height: "100%",
-                border: "1px solid red",
                 overflowY: "scroll",
                 display: "flex",
                 justifyContent: "center",
