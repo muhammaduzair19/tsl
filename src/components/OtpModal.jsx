@@ -35,7 +35,6 @@ export default function OtpModal({ onClose, open }) {
                 console.log(response.data);
 
                 if (response.data.scrapper_status) {
-                    // Availability found, stop checking
                     clearInterval(intervalId); // Stop the interval
                     setTimeout(() => {
                         setCheckingScrapper(false);
@@ -46,7 +45,7 @@ export default function OtpModal({ onClose, open }) {
                 console.log(error);
                 toast.error(error.message);
             }
-        }, 3000); // Run every 10 seconds
+        }, 3000);
     };
 
     const handleSubmit = async (e) => {
@@ -57,11 +56,7 @@ export default function OtpModal({ onClose, open }) {
             const response = await axios.post(
                 baseURL + "/send-otp",
                 JSON.stringify({ otp }),
-                {
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                }
+                { headers: { "Content-Type": "application/json" } }
             );
 
             // Handle the response
@@ -108,7 +103,7 @@ export default function OtpModal({ onClose, open }) {
                                 Verify OTP
                             </Typography>
                             <Typography sx={{ fontSize: "12px" }}>
-                                Check your email to verify OTP
+                                Check your email and enter the BLS Verification code
                             </Typography>
                             <Box my={2}>
                                 <TextField

@@ -124,13 +124,16 @@ const BlsLogin = () => {
             }}
         >
             <Form onSubmit={handeSubmit}>
-                <div className="title">BLS Login</div>
+                <div>
+                    <div className="gradient-title text-3xl">BLS Login Credentials</div>
+                    <p className="text-lg font-medium">Enter your BLS account credentials</p>
+                </div>
                 <div className="form-inputs">
                     <div className="form-input">
                         <EmailOutlinedIcon sx={{ color: "#5d87ff" }} />
                         <Input
                             name="email"
-                            placeholder="Email"
+                            placeholder="Enter BLS Email"
                             disableUnderline
                             sx={{ fontSize: "14px", width: "100%" }}
                         />
@@ -140,7 +143,7 @@ const BlsLogin = () => {
                         <PasswordOutlinedIcon sx={{ color: "#5d87ff" }} />
                         <Input
                             name="password"
-                            placeholder="Password"
+                            placeholder="Enter BLS Password"
                             type={showPassword ? "text" : "password"}
                             disableUnderline
                             sx={{ fontSize: "14px", width: "100%" }}
